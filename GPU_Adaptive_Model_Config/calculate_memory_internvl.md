@@ -94,20 +94,20 @@ per CPU  |  per GPU |   Options
 
 - When parameters and optimizer states are offloaded to the CPU (offload_param=cpu, offload_optimizer=cpu)
 
-    `High CPU usage (~55.47GB) but very low GPU usage (~0.71GB) for zero_init=1`.
-    `High CPU usage (~98.60GB) but very low GPU usage (~0.71GB) for zero_init=0`.
+    - `High CPU usage (~55.47GB) but very low GPU usage (~0.71GB) for zero_init=1`.
+    - `High CPU usage (~98.60GB) but very low GPU usage (~0.71GB) for zero_init=0`.
     This is useful if your GPU has limited memory, but training might be slower due to CPU-GPU communication overhead.
     
 - When only the optimizer is offloaded to the CPU (offload_param=none, offload_optimizer=cpu)
 
-    `CPU usage is lower (~49.30GB) but GPU usage increases (~1.22GB) for zero_init=1.`
-    `CPU usage is lower (~98.60GB) but GPU usage increases (~1.22GB) for zero_init=0.`
+    - `CPU usage is lower (~49.30GB) but GPU usage increases (~1.22GB) for zero_init=1.`
+    - `CPU usage is lower (~98.60GB) but GPU usage increases (~1.22GB) for zero_init=0.`
     A balance between CPU and GPU usage, reducing GPU memory pressure while keeping model parameters in GPU.
 
 - When nothing is offloaded (offload_param=none, offload_optimizer=none)
 
-    `Low CPU usage of 8.47GB but high GPU usage (~5.53GB) for zero_init=1`
-    `Low CPU usage of 98.60GB but high GPU usage (~5.53GB) for zero_init=0`
+    - `Low CPU usage of 8.47GB but high GPU usage (~5.53GB) for zero_init=1`
+    - `Low CPU usage of 98.60GB but high GPU usage (~5.53GB) for zero_init=0`
     Best for performance if GPU memory is sufficient.
 
 
