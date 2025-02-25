@@ -136,6 +136,12 @@ ds_collections = {
         'annotation': 'data/infographicsvqa/infographicsVQA_test_v1.0.json',
         'metric': None,
         'max_new_tokens': 100,
+    }, 
+    'custom_vqa': {
+        'train': 'data/custom_vqa/annotations/vqa_train.jsonl',
+        'test': 'data/custom_vqa/annotations/vqa_val.jsonl',
+        'metric': 'vqa_score',
+        'max_new_tokens': 100,
     }
 }
 
@@ -374,7 +380,7 @@ def evaluate_chat_model():
 
             for question, question_id, answer, annotation in zip(questions, question_ids, answers, annotations):
                 if ds_name in ['vqav2_val', 'vqav2_testdev', 'okvqa_val', 'textvqa_val',
-                               'vizwiz_val', 'textvqa_val_ocr']:
+                               'vizwiz_val', 'textvqa_val_ocr', 'custom_vqa']:
                     outputs.append({
                         'question': question,
                         'question_id': question_id,
