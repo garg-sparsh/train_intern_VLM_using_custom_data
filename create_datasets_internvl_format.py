@@ -60,44 +60,60 @@ def split_dataset(image_dir, output_dir, train_ratio=0.8):
 
     return train_images, test_images
 
+def save_annotations_comparison(annos):
+    annotations = []
+    for entry in annos:
+        temp = {'image_id': int(entry['image'].split('/')[-1].replace('image', '').replace('.png', '')), 'answer_type': 'other', 'question_type': 'other', 'question_id': entry['question_id']}
+        answers = []
+        ans1 = {'answer_id': 0, 'answer': entry['answer'], 'answer_confidence': 'yes'}
+        ans2 = {'answer_id': 1, 'answer': entry['answer'].replace('_', ' '), 'answer_confidence': 'yes'}
+        answers.append(ans1)
+        answers.append(ans2)
+        temp['answers'] = answers
+        annotations.append(temp)
+    return annotations
+
+def save_questions_comparison(ques):
+    questions = []
+    for entry in ques:
+        temp =  {'image':entry['image'], 'image_id': int(entry['image'].split('/')[-1].replace('image', '').replace('.png', '')),  'question_id': entry['question_id'], 'question' :entry['question']}
+        questions.append(temp)
+    return questions
+
 
 def convert_df(train_images):
     data_df = pd.read_csv('data.csv')
     image_ids = [i.replace('.png', '') for i in train_images]
     image_ids = set(image_ids)
     annos = []
+    count = 0
     for ids in image_ids:
-        temp = {}
-        temp['id'] = int(ids.replace('image', ''))
-        temp['image'] = "images/image%s.png"%ids
-        img = "images/%s.png"%ids
-        width, height = Image.open(img).size
-        temp['width'] = width
-        temp['height'] = height
+        # temp = {}
+        # temp['id'] = int(ids.replace('image', ''))
+        # temp['image'] = "images/image%s.png"%ids
+        # img = "images/%s.png"%ids
+        # width, height = Image.open(img).size
+        # temp['width'] = width
+        # temp['height'] = height
         qas = data_df[data_df['image_id']==ids].values
-        conversations = []
         for qa in qas:
-            ques = qa[0]
-            ans = qa[1]
-            ques_format = {
-                "from": "human",
-                "value": "<image>\n%s"%ques
-                }
-            ans_format = {
-                "from": "gpt",
-                "value": ans
-                }
-            conversations.append(ques_format)
-            conversations.append(ans_format)
-        temp['conversations'] = conversations
-        annos.append(temp)
+            temp = {}
+            temp['image'] = "data/custom_vqa/images/train/%s.png"%ids
+            temp['question'] = qa[0]
+            temp['question_id'] = count
+            temp['answer'] = qa[1]
+            annos.append(temp)
+            count+=1
     return annos
 
-
 def main():
-    image_directory = "images"
-    output_directory = "images" 
-    train_images, test_images = split_dataset(image_directory, output_directory)
+    image_dir = 'images'
+    output_dir = 'images'
+    train_images, val_images = split_dataset(image_dir, output_dir, train_ratio=0.8)
+    train_images = [f for f in os.listdir(image_dir+'/train') if f.endswith(('.jpg', '.png', '.jpeg'))]
+    val_directory = "images/val"
+    val_images = [f for f in os.listdir(image_dir+'/val') if f.endswith(('.jpg', '.png', '.jpeg'))]
+    #test_images = split_dataset(image_directory, output_directory)
     with open("annotations/vqa_train.jsonl", "w") as f:
         train_annos = convert_df(train_images)
         for entry in train_annos:
@@ -106,10 +122,53 @@ def main():
 
 
     with open("annotations/vqa_val.jsonl", "w") as f:
-            val_annos = convert_df(test_images)
+            val_annos = convert_df(val_images)
             for entry in val_annos:
                 f.write(json.dumps(entry) + "\n")
             f.close()   
+
+    '''
+    This is the format to save annotations file:
+    {'image_id': 0, 'answer_type': 'other', 'question_type': 'other', 'question_id': 34602, 'answers': [{'answer_id': 0, 'answer': 'nous les gosses', 'answer_confidence': 'yes'}, 
+    {'answer_id': 1, 'answer': 'dakota', 'answer_confidence': 'yes'}, {'answer_id': 2, 'answer': 'clos culombu', 'answer_confidence': 'yes'},
+    {'answer_id': 3, 'answer': 'dakota digital', 'answer_confidence': 'yes'}, {'answer_id': 4, 'answer': 'dakota', 'answer_confidence': 'yes'}, 
+    {'answer_id': 5, 'answer': 'dakota', 'answer_confidence': 'yes'}, {'answer_id': 6, 'answer': 'dakota digital', 'answer_confidence': 'yes'}, 
+    {'answer_id': 7, 'answer': 'dakota digital', 'answer_confidence': 'yes'}, {'answer_id': 8, 'answer': 'dakota', 'answer_confidence': 'yes'}, 
+    {'answer_id': 9, 'answer': 'dakota', 'answer_confidence': 'yes'}]}
+
+
+    This is the format to save questions file:
+    {'image': 'data/textvqa/train_images/003a8ae2ef43b901.jpg', 'image_id': 0, 'question': 'what is the brand of this camera?', 'question_id': 34602}
+
+    '''
+    print('train_annos:', train_annos)
+    with open("custom_qa_train_annotations.json", "w") as f:
+        train_answers = save_annotations_comparison(train_annos)
+        train_answers = {'annotations':train_answers}
+        f.write(json.dumps(train_answers))
+        f.close()
+    
+    with open("custom_qa_val_annotations.json", "w") as f:
+        val_answers = save_annotations_comparison(val_annos)
+        val_answers = {'annotations':val_answers}
+        f.write(json.dumps(val_answers))
+        f.close()
+
+    with open("custom_qa_train_questions.json", "w") as f:
+        train_questions = save_questions_comparison(train_annos)
+        train_answers = {'questions':train_questions, 'info':'', 'license':'', 'data_subtype':'', 'data_type':''}
+        f.write(json.dumps(train_answers))
+        f.close()
+    
+    with open("custom_qa_val_questions.json", "w") as f:
+        val_questions = save_questions_comparison(val_annos)
+        val_answers = {'questions':val_questions, 'info':'', 'license':'', 'data_subtype':'', 'data_type':''}
+        f.write(json.dumps(val_answers))
+        f.close()
+    
+
+
+       
 
 
 main()
