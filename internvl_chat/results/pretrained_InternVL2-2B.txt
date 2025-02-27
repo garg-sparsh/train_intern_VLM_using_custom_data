@@ -1,0 +1,1 @@
+['/home/ma/sparsh/InternVL/internvl_chat/pretrained/InternVL2-2B', 'custom_vqa', 0.09048543689320475]
