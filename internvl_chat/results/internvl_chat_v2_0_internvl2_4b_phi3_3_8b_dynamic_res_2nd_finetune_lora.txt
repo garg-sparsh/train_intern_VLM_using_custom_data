@@ -1,0 +1,1 @@
+['/home/ma/sparsh/InternVL/internvl_chat/work_dirs/internvl_chat_v2_0/internvl2_4b_phi3_3_8b_dynamic_res_2nd_finetune_lora', 'custom_vqa', 0.33462783171520948]
